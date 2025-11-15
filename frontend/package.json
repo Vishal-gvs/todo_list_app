@@ -5,10 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+<<<<<<< HEAD
     "build": "vite build",
     "build:check": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+=======
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "postinstall": "npm install typescript@latest --save-dev"
+>>>>>>> 719126d277a92baa5cf4543fa0aef718c73fe2db
   },
   "dependencies": {
     "@hookform/resolvers": "^2.9.11",
@@ -37,7 +44,11 @@
     "eslint-plugin-react-refresh": "^0.3.4",
     "postcss": "^8.4.21",
     "tailwindcss": "^3.2.7",
+<<<<<<< HEAD
     "typescript": "^4.9.3",
+=======
+    "typescript": "^5.9.2",
+>>>>>>> 719126d277a92baa5cf4543fa0aef718c73fe2db
     "vite": "^4.1.0"
   }
 }

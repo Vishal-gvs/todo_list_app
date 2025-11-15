@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Multi-user Todo List App
 
 A full-stack web application that allows multiple users to register, log in, and manage their personal task lists. Built with the MERN stack (MongoDB, Express.js, React, Node.js) and modern web technologies.
@@ -209,3 +210,6 @@ This project is licensed under the ISC License.
 - Tailwind CSS team for the utility-first CSS framework
 - MongoDB team for the flexible database
 - Express.js team for the web framework 
+=======
+# Multi-User_TODO_listAPP
+>>>>>>> 719126d277a92baa5cf4543fa0aef718c73fe2db
