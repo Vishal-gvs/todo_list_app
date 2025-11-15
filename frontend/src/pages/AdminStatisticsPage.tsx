@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { userAPI } from '@/utils/api';
 import { LogOut, BarChart2, User as UserIcon, Shield } from 'lucide-react';
