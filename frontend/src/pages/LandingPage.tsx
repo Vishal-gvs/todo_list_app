@@ -176,11 +176,7 @@ const LandingPage = () => {
             <span className="text-lg font-semibold">TodoApp</span>
           </div>
           <p className="text-muted-foreground text-sm">
-<<<<<<< HEAD
             © 2024 TodoApp. Built with ❤️ using the MERN stack.
-=======
-            TodoApp. Built using the MERN stack.
->>>>>>> 719126d277a92baa5cf4543fa0aef718c73fe2db
           </p>
         </div>
       </footer>
@@ -188,8 +184,4 @@ const LandingPage = () => {
   );
 };
 
-<<<<<<< HEAD
 export default LandingPage;
-=======
-export default LandingPage;
->>>>>>> 719126d277a92baa5cf4543fa0aef718c73fe2db
