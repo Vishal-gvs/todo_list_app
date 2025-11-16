@@ -4,7 +4,7 @@ import { userAPI } from '@/utils/api';
 import { LogOut, BarChart2, User as UserIcon, Shield } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import { useNavigate, Link } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import { showErrorToast, showSuccessToast } from '../utils/errorHandler';
 
 interface UserStat {
   _id: string;
@@ -45,12 +45,12 @@ const AdminStatisticsPage: React.FC = () => {
     if (!window.confirm(`Are you sure you want to delete user '${userName}'? This cannot be undone.`)) return;
     try {
       await userAPI.deleteUserByAdmin(userId);
-      toast.success(`User '${userName}' deleted successfully.`);
+      showSuccessToast(`User '${userName}' deleted successfully.`);
       // Refresh stats
       const updatedStats = await userAPI.getStatistics();
       setStats(updatedStats);
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Failed to delete user');
+      showErrorToast(err, 'Failed to delete user');
     }
   };
 

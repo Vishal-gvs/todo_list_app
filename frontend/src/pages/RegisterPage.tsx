@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeft } from 'lucide-react';
+import { showErrorToast } from '../utils/errorHandler';
 import ThemeToggle from '../components/ThemeToggle';
 
 const RegisterPage = () => {
@@ -59,14 +60,11 @@ const RegisterPage = () => {
         navigate('/dashboard');
       }
     } catch (err: any) {
-      // Show specific backend error message(s)
-      if (err.response?.data?.errors && err.response.data.errors.length > 0) {
-        setError(err.response.data.errors[0].message);
-      } else if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else {
-        setError('Registration failed');
-      }
+      const errorMessage = err?.response?.data?.errors && Array.isArray(err.response.data.errors)
+        ? err.response.data.errors.map((e: any) => e.message).join(', ')
+        : err?.response?.data?.message || 'Registration failed';
+      setError(errorMessage);
+      showErrorToast(err, 'Registration failed');
     } finally {
       setLoading(false);
     }

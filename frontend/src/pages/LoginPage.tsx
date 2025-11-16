@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Eye, EyeOff, CheckCircle, ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
-import toast from 'react-hot-toast'
+import { showErrorToast, showSuccessToast } from '../utils/errorHandler'
 import ThemeToggle from '../components/ThemeToggle'
 
 const loginSchema = z.object({
@@ -35,7 +35,7 @@ const LoginPage = () => {
     setError('');
     try {
       await login(data.email, data.password)
-      toast.success('Login successful!')
+      showSuccessToast('Login successful!')
       // Get user from localStorage to check role
       const storedUser = localStorage.getItem('user');
       let role = 'user';
@@ -50,17 +50,11 @@ const LoginPage = () => {
         navigate('/dashboard')
       }
     } catch (error: any) {
-      // Show specific backend error message(s)
-      if (error.response?.data?.errors && error.response.data.errors.length > 0) {
-        setError(error.response.data.errors[0].message);
-        toast.error(error.response.data.errors[0].message);
-      } else if (error.response?.data?.message) {
-        setError(error.response.data.message);
-        toast.error(error.response.data.message);
-      } else {
-        setError('Login failed');
-        toast.error('Login failed');
-      }
+      const errorMessage = error?.response?.data?.errors && Array.isArray(error.response.data.errors)
+        ? error.response.data.errors.map((e: any) => e.message).join(', ')
+        : error?.response?.data?.message || 'Login failed';
+      setError(errorMessage);
+      showErrorToast(error, 'Login failed');
     } finally {
       setIsLoading(false)
     }

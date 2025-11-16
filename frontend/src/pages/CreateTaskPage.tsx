@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { tasksAPI } from '../utils/api';
 import { ArrowLeft, Plus } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { showErrorToast, showSuccessToast } from '../utils/errorHandler';
 import ThemeToggle from '../components/ThemeToggle'; // SAME TOGGLE COMPONENT 
 
 const CreateTaskPage = () => {
@@ -30,12 +30,14 @@ const CreateTaskPage = () => {
 
     try {
       await tasksAPI.create(formData);
-      toast.success('Task created successfully');
+      showSuccessToast('Task created successfully');
       navigate('/dashboard');
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Failed to create task';
+      const errorMessage = err?.response?.data?.errors && Array.isArray(err.response.data.errors)
+        ? err.response.data.errors.map((e: any) => e.message).join(', ')
+        : err?.response?.data?.message || 'Failed to create task';
       setError(errorMessage);
-      toast.error(errorMessage);
+      showErrorToast(err, 'Failed to create task');
     } finally {
       setLoading(false);
     }

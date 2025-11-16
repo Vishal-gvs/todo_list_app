@@ -5,13 +5,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { tasksAPI } from "../utils/api";
 import { ArrowLeft, Save, Trash2 } from "lucide-react";
-import toast from "react-hot-toast";
+import { showErrorToast, showSuccessToast } from "../utils/errorHandler";
 import { Task } from "../types";
 import ThemeToggle from "../components/ThemeToggle";
 
 const taskSchema = z.object({
   title: z.string().min(1, "Task title is required").max(100),
-  description: z.string().max(500).optional(),
+  description: z.string().optional(),
   dueDate: z.string().optional(),
   priority: z.enum(["low", "medium", "high"]).default("medium"),
 });
@@ -54,7 +54,7 @@ const EditTaskPage = () => {
         priority: taskData.priority,
       });
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to fetch task");
+      showErrorToast(error, "Failed to fetch task");
       navigate("/dashboard");
     } finally {
       setLoading(false);
@@ -65,10 +65,10 @@ const EditTaskPage = () => {
     setSaving(true);
     try {
       await tasksAPI.update(id!, data);
-      toast.success("Task updated successfully");
+      showSuccessToast("Task updated successfully");
       navigate("/dashboard");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to update task");
+      showErrorToast(error, "Failed to update task");
     } finally {
       setSaving(false);
     }
@@ -80,10 +80,10 @@ const EditTaskPage = () => {
     setDeleting(true);
     try {
       await tasksAPI.delete(id!);
-      toast.success("Task deleted successfully");
+      showSuccessToast("Task deleted successfully");
       navigate("/dashboard");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to delete task");
+      showErrorToast(error, "Failed to delete task");
     } finally {
       setDeleting(false);
     }

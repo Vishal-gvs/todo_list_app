@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { userAPI } from '../utils/api';
 import { ArrowLeft, User, Mail, Save, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import { showErrorToast, showSuccessToast } from '../utils/errorHandler';
 import ThemeToggle from '../components/ThemeToggle';
 
 const profileSchema = z.object({
@@ -48,10 +48,10 @@ const ProfilePage = () => {
     try {
       const response = await userAPI.updateProfile(data);
       updateUser(response.user);
-      toast.success('Profile updated successfully');
+      showSuccessToast('Profile updated successfully');
       reset(data);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to update profile');
+      showErrorToast(error, 'Failed to update profile');
     } finally {
       setLoading(false);
     }
@@ -66,10 +66,10 @@ const ProfilePage = () => {
     setLoading(true);
     try {
       await userAPI.deleteProfile();
-      toast.success('Account deleted successfully');
+      showSuccessToast('Account deleted successfully');
       logout();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to delete account');
+      showErrorToast(error, 'Failed to delete account');
       setDeleteConfirm(false);
     } finally {
       setLoading(false);

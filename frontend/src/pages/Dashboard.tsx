@@ -7,7 +7,7 @@ import {
   Plus, Settings, LogOut, Search, Filter,
   Calendar, CheckCircle, Clock, Edit
 } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { showErrorToast, showSuccessToast } from '../utils/errorHandler';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ThemeToggle from '../components/ThemeToggle';
 
@@ -30,7 +30,7 @@ const Dashboard = () => {
       setTasks(response.tasks);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to fetch tasks');
-      toast.error('Failed to fetch tasks');
+      showErrorToast(err, 'Failed to fetch tasks');
     } finally {
       setLoading(false);
     }
@@ -38,16 +38,16 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     logout();
-    toast.success('Logged out successfully');
+    showSuccessToast('Logged out successfully');
   };
 
   const handleToggleTask = async (taskId: string) => {
     try {
       await tasksAPI.toggleStatus(taskId);
       await fetchTasks();
-      toast.success('Task status updated');
+      showSuccessToast('Task status updated');
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to update task');
+      showErrorToast(err, 'Failed to update task');
     }
   };
 

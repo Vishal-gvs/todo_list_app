@@ -7,7 +7,7 @@ import { userAPI } from '../utils/api';
 import { LogOut, BarChart2, Shield, User, Mail, Save, Trash2 } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import { useNavigate, Link } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import { showErrorToast, showSuccessToast } from '../utils/errorHandler';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name cannot exceed 50 characters'),
@@ -49,10 +49,10 @@ const AdminSettingsPage: React.FC = () => {
     try {
       const response = await userAPI.updateProfile(data);
       updateUser(response.user);
-      toast.success('Profile updated successfully');
+      showSuccessToast('Profile updated successfully');
       reset(data);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to update profile');
+      showErrorToast(error, 'Failed to update profile');
     } finally {
       setLoading(false);
     }
@@ -66,11 +66,11 @@ const AdminSettingsPage: React.FC = () => {
     setLoading(true);
     try {
       await userAPI.deleteProfile();
-      toast.success('Account deleted successfully');
+      showSuccessToast('Account deleted successfully');
       logout();
       navigate('/login');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to delete account');
+      showErrorToast(error, 'Failed to delete account');
       setDeleteConfirm(false);
     } finally {
       setLoading(false);
