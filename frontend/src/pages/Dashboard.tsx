@@ -89,8 +89,7 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Actions */}
-        <div className="flex justify-between mb-6">
+        <div className="flex gap-4 mb-6 flex-wrap">
           <Link
             to="/tasks/create"
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2"
@@ -98,9 +97,37 @@ const Dashboard = () => {
             <Plus className="h-4 w-4" />
             Add New Task
           </Link>
+          
+          <Link
+            to="/assigned-tasks"
+            className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 flex items-center gap-2"
+          >
+            <CheckCircle className="h-4 w-4" />
+             My Assigned Tasks
+          </Link>
+
+          {user?.role === 'admin' && (
+            <>
+              <Link
+                to="/admin/tasks"
+                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center gap-2"
+              >
+                <Settings className="h-4 w-4" />
+                Admin Tasks
+              </Link>
+              <Link
+                to="/admin/groups"
+                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center gap-2"
+              >
+                <Settings className="h-4 w-4" />
+                Manage Groups
+              </Link>
+            </>
+          )}
+
           <Link
             to="/profile"
-            className="text-blue-600 hover:underline flex items-center gap-2"
+            className="text-blue-600 hover:underline flex items-center gap-2 ml-auto"
           >
             <Settings className="h-4 w-4" />
             Profile Settings

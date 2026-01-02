@@ -1,91 +1,50 @@
+import AdminLayout from '../components/admin/AdminLayout';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { userAPI } from '@/utils/api';
-import { LogOut, BarChart2, User as UserIcon, Shield } from 'lucide-react';
-import ThemeToggle from '../components/ThemeToggle';
-import { useNavigate, Link } from 'react-router-dom';
+import { User as UserIcon, Shield } from 'lucide-react';
 import { showErrorToast, showSuccessToast } from '../utils/errorHandler';
-
-interface UserStat {
-  _id: string;
-  name: string;
-  email: string;
-  role: 'user' | 'admin';
-  taskCount: number;
-}
+// ... (interfaces remain same)
 
 const AdminStatisticsPage: React.FC = () => {
-  const { user, logout } = useAuth();
-  const [stats, setStats] = useState<{
-    totalUsers: number;
-    totalAdmins: number;
-    userStats: UserStat[];
-  } | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [fetching, setFetching] = useState(false);
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [stats, setStats] = useState<any>(null);
+  const [fetching, setFetching] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!user || user.role !== 'admin') return;
-    setFetching(true);
-    userAPI.getStatistics()
-      .then(setStats)
-      .catch((err) => {
-        setError(err?.response?.data?.message || 'Failed to fetch statistics');
-      })
-      .finally(() => setFetching(false));
-  }, [user]);
+    fetchStats();
+  }, []);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
-  const handleDeleteUser = async (userId: string, userName: string) => {
-    if (!window.confirm(`Are you sure you want to delete user '${userName}'? This cannot be undone.`)) return;
+  const fetchStats = async () => {
     try {
-      await userAPI.deleteUserByAdmin(userId);
-      showSuccessToast(`User '${userName}' deleted successfully.`);
-      // Refresh stats
-      const updatedStats = await userAPI.getStatistics();
-      setStats(updatedStats);
+      const data = await userAPI.getStatistics();
+      setStats(data);
     } catch (err: any) {
-      showErrorToast(err, 'Failed to delete user');
+      setError('Failed to load statistics');
+    } finally {
+      setFetching(false);
     }
   };
 
-  if (!user || user.role !== 'admin') return <div>Access denied. Admins only.</div>;
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!window.confirm(`Are you sure you want to delete user ${userName}?`)) return;
+
+    try {
+      await userAPI.deleteUserByAdmin(userId);
+      showSuccessToast('User deleted successfully');
+      fetchStats();
+    } catch (err: any) {
+      showErrorToast(err.response?.data?.message || 'Failed to delete user');
+    }
+  };
+
+  if (!user || user.role !== 'admin') return <div className="p-8 text-center text-red-600 dark:text-red-400">Access denied. Admins only.</div>;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Navbar/Header */}
-      <header className="shadow bg-white dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <BarChart2 className="h-7 w-7 text-blue-600" />
-            <h1 className="text-2xl font-bold">Admin Statistics</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-muted-foreground">Welcome, {user?.name}</span>
-            <ThemeToggle />
-            <Link to="/admin/settings" className="text-blue-600 hover:underline flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-              Settings
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
-            >
-              <LogOut className="inline h-4 w-4 mr-1" />
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
+    <AdminLayout>
+      <h2 className="text-xl font-semibold mb-6">User & Task Report</h2>
 
-      {/* Main Content */}
-      <main className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <h2 className="text-xl font-semibold mb-6">User & Task Report</h2>
         {fetching && <div>Loading statistics...</div>}
         {error && <div className="text-red-500 mb-2">{error}</div>}
         {stats && (
@@ -120,7 +79,7 @@ const AdminStatisticsPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {stats.userStats.filter(u => u.role === 'admin').map((u, idx) => (
+                  {stats.userStats.filter((u: any) => u.role === 'admin').map((u: any, idx: number) => (
                     <tr key={u._id} className={idx % 2 === 0 ? 'bg-gray-50 dark:bg-gray-800' : ''}>
                       <td className="px-4 py-3 border-b font-medium">{u.name}</td>
                       <td className="px-4 py-3 border-b">{u.email}</td>
@@ -149,7 +108,7 @@ const AdminStatisticsPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {stats.userStats.filter(u => u.role !== 'admin').map((u, idx) => (
+                  {stats.userStats.filter((u: any) => u.role !== 'admin').map((u: any, idx: number) => (
                     <tr key={u._id} className={idx % 2 === 0 ? 'bg-gray-50 dark:bg-gray-800' : ''}>
                       <td className="px-4 py-3 border-b font-medium">{u.name}</td>
                       <td className="px-4 py-3 border-b">{u.email}</td>
@@ -176,8 +135,7 @@ const AdminStatisticsPage: React.FC = () => {
             </div>
           </>
         )}
-      </main>
-    </div>
+    </AdminLayout>
   );
 };
 

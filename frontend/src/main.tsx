@@ -6,9 +6,15 @@ import App from './App'
 import './index.css'
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+
+const rootElement = document.getElementById('root');
+if (!rootElement) throw new Error('Failed to find the root element');
+
+ReactDOM.createRoot(rootElement).render(
   <StrictMode>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
@@ -27,5 +33,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>
+    </GoogleOAuthProvider>
   </StrictMode>,
 )

@@ -49,6 +49,11 @@ export const authAPI = {
     return response.data;
   },
 
+  googleLogin: async (credential: string) => {
+    const response = await api.post<AuthResponse>('/auth/google', { credential });
+    return response.data;
+  },
+
   getCurrentUser: async () => {
     const response = await api.get<{ user: User }>('/auth/me');
     return response.data;

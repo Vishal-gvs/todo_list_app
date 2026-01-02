@@ -19,8 +19,19 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, 'Password is required'],
-        minlength: [6, 'Password must be at least 6 characters long']
+        required: [function() { return !this.googleId; }, 'Password is required'],
+        minlength: [6, 'Password must be at least 6 characters long'],
+        validate: {
+            validator: function(v) {
+                return this.googleId || (v && v.length >= 6);
+            },
+            message: 'Password must be at least 6 characters long'
+        }
+    },
+    googleId: {
+        type: String,
+        unique: true,
+        sparse: true
     },
     role: {
         type: String,

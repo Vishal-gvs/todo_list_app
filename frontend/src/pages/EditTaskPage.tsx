@@ -40,8 +40,9 @@ const EditTaskPage = () => {
   }, [id]);
 
   const fetchTask = async () => {
+    if (!id) return;
     try {
-      const response = await tasksAPI.getById(id!);
+      const response = await tasksAPI.getById(id);
       const taskData = response.task;
       setTask(taskData);
 
@@ -62,9 +63,10 @@ const EditTaskPage = () => {
   };
 
   const onSubmit = async (data: TaskFormData) => {
+    if (!id) return;
     setSaving(true);
     try {
-      await tasksAPI.update(id!, data);
+      await tasksAPI.update(id, data);
       showSuccessToast("Task updated successfully");
       navigate("/dashboard");
     } catch (error: any) {
@@ -76,10 +78,11 @@ const EditTaskPage = () => {
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this task?")) return;
+    if (!id) return;
 
     setDeleting(true);
     try {
-      await tasksAPI.delete(id!);
+      await tasksAPI.delete(id);
       showSuccessToast("Task deleted successfully");
       navigate("/dashboard");
     } catch (error: any) {

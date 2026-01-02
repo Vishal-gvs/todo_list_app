@@ -7,6 +7,7 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  googleLogin: (credential: string) => Promise<void>;
   register: (name: string, email: string, password: string, role?: 'user' | 'admin', adminCode?: string) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => void;
@@ -58,33 +59,36 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    try {
-      const response = await authAPI.login({ email, password });
-      const { token: newToken, user: newUser } = response;
-      
-      localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(newUser));
-      
-      setToken(newToken);
-      setUser(newUser);
-    } catch (error) {
-      throw error;
-    }
+    const response = await authAPI.login({ email, password });
+    const { token: newToken, user: newUser } = response;
+    
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('user', JSON.stringify(newUser));
+    
+    setToken(newToken);
+    setUser(newUser);
+  };
+
+  const googleLogin = async (credential: string) => {
+    const response = await authAPI.googleLogin(credential);
+    const { token: newToken, user: newUser } = response;
+    
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('user', JSON.stringify(newUser));
+    
+    setToken(newToken);
+    setUser(newUser);
   };
 
   const register = async (name: string, email: string, password: string, role?: 'user' | 'admin', adminCode?: string) => {
-    try {
-      const response = await authAPI.register({ name, email, password, role, adminCode });
-      const { token: newToken, user: newUser } = response;
-      
-      localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(newUser));
-      
-      setToken(newToken);
-      setUser(newUser);
-    } catch (error) {
-      throw error;
-    }
+    const response = await authAPI.register({ name, email, password, role, adminCode });
+    const { token: newToken, user: newUser } = response;
+    
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('user', JSON.stringify(newUser));
+    
+    setToken(newToken);
+    setUser(newUser);
   };
 
   const logout = () => {
@@ -104,6 +108,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     token,
     loading,
     login,
+    googleLogin,
     register,
     logout,
     updateUser,

@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import { GoogleLogin } from '@react-oauth/google';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeft } from 'lucide-react';
-import { showErrorToast } from '../utils/errorHandler';
+import { showErrorToast, showSuccessToast } from '../utils/errorHandler';
 import ThemeToggle from '../components/ThemeToggle';
 
 const RegisterPage = () => {
@@ -16,7 +17,7 @@ const RegisterPage = () => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const { register, googleLogin } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,7 +53,7 @@ const RegisterPage = () => {
       if (storedUser) {
         try {
           role = JSON.parse(storedUser).role;
-        } catch {}
+        } catch { /* empty */ }
       }
       if (role === 'admin') {
         navigate('/admin/statistics');
@@ -68,6 +69,39 @@ const RegisterPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      if (credentialResponse.credential) {
+        await googleLogin(credentialResponse.credential);
+        showSuccessToast('Google Signup Successful');
+        
+        // Get user from localStorage to check role
+        const storedUser = localStorage.getItem('user');
+        let role = 'user';
+        if (storedUser) {
+          try {
+            role = JSON.parse(storedUser).role;
+          } catch { /* empty */ }
+        }
+        if (role === 'admin') {
+          navigate('/admin/statistics')
+        } else {
+          navigate('/dashboard')
+        }
+      }
+    } catch (error: any) {
+      console.error('Google Signup Error:', error);
+      const errorMessage = error?.response?.data?.message || 'Google Signup Failed';
+      setError(errorMessage);
+      showErrorToast(error, 'Google Signup Failed');
+    }
+  };
+
+  const handleGoogleError = () => {
+    console.error('Google Signup Failed');
+    showErrorToast('Google Signup Failed');
   };
 
   return (
@@ -162,6 +196,25 @@ const RegisterPage = () => {
             {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
+
+        <div className="mt-4 relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-background text-muted-foreground">Or sign up with</span>
+          </div>
+        </div>
+
+        <div className="mt-4 flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+            theme="filled_blue"
+            shape="pill"
+            text="signup_with"
+          />
+        </div>
 
         <p className="mt-4 text-center text-sm text-muted-foreground">
           Already have an account?{' '}

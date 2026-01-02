@@ -5,12 +5,65 @@ const User = require('../models/User');
 const auth = require('../middleware/auth');
 const validate = require('../middleware/validate');
 
+const { OAuth2Client } = require('google-auth-library');
+
 const router = express.Router();
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Generate JWT token
 const generateToken = (userId) => {
     return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
+
+// @route   POST /api/auth/google
+// @desc    Login/Register with Google
+// @access  Public
+router.post('/google', async (req, res) => {
+    try {
+        const { credential } = req.body;
+        
+        // Verify Google token
+        const ticket = await client.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID
+        });
+        
+        const { email, name, sub: googleId } = ticket.getPayload();
+        
+        // Check if user exists
+        let user = await User.findOne({ email });
+        
+        if (user) {
+            // If user exists but doesn't have googleId, add it
+            if (!user.googleId) {
+                user.googleId = googleId;
+                await user.save();
+            }
+        } else {
+            // Create new user
+            user = new User({
+                name,
+                email,
+                googleId,
+                password: Math.random().toString(36).slice(-8) // Random password for google users
+            });
+            await user.save();
+        }
+        
+        // Generate token
+        const token = generateToken(user._id);
+        
+        res.json({
+            message: 'Google login successful',
+            token,
+            user: user.toJSON()
+        });
+    } catch (error) {
+        console.error('Google auth error:', error);
+        res.status(500).json({ message: 'Google authentication failed' });
+    }
+});
 
 // @route   POST /api/auth/register
 // @desc    Register a new user
@@ -29,7 +82,7 @@ router.post('/register', [
         .withMessage('Password must be at least 6 characters long')
 ], validate, async (req, res) => {
     try {
-        const { name, email, password, role, adminCode } = req.body;
+        const { name, email, password, role, adminCode, } = req.body;
 
         // Check if user already exists
         const existingUser = await User.findOne({ email });

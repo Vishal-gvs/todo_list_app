@@ -23,6 +23,8 @@ connectDB();
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/tasks', require('./routes/tasks'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/admin', require('./routes/admin'));
+app.use('/api/assigned-tasks', require('./routes/assignedTasks'));
 
 // Basic route for testing
 app.get('/', (req, res) => {

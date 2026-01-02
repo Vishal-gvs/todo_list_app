@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Eye, EyeOff, CheckCircle, ArrowLeft } from 'lucide-react'
+import { GoogleLogin } from '@react-oauth/google'
 import { useAuth } from '@/context/AuthContext'
 import { showErrorToast, showSuccessToast } from '../utils/errorHandler'
 import ThemeToggle from '../components/ThemeToggle'
@@ -18,7 +19,7 @@ type LoginFormData = z.infer<typeof loginSchema>
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const { login } = useAuth()
+  const { login, googleLogin } = useAuth()
   const navigate = useNavigate()
   const [error, setError] = useState('');
 
@@ -42,7 +43,7 @@ const LoginPage = () => {
       if (storedUser) {
         try {
           role = JSON.parse(storedUser).role;
-        } catch {}
+        } catch { /* empty */ }
       }
       if (role === 'admin') {
         navigate('/admin/statistics')
@@ -59,6 +60,39 @@ const LoginPage = () => {
       setIsLoading(false)
     }
   }
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      if (credentialResponse.credential) {
+        await googleLogin(credentialResponse.credential);
+        showSuccessToast('Google Login Successful');
+        
+        // Get user from localStorage to check role
+        const storedUser = localStorage.getItem('user');
+        let role = 'user';
+        if (storedUser) {
+          try {
+            role = JSON.parse(storedUser).role;
+          } catch { /* empty */ }
+        }
+        if (role === 'admin') {
+          navigate('/admin/statistics')
+        } else {
+          navigate('/dashboard')
+        }
+      }
+    } catch (error: any) {
+      console.error('Google Login Error:', error);
+      const errorMessage = error?.response?.data?.message || 'Google Login Failed';
+      setError(errorMessage);
+      showErrorToast(error, 'Google Login Failed');
+    }
+  };
+
+  const handleGoogleError = () => {
+    console.error('Google Login Failed');
+    showErrorToast('Google Login Failed');
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -148,6 +182,25 @@ const LoginPage = () => {
               >
                 {isLoading ? 'Signing in...' : 'Sign in'}
               </button>
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-background text-muted-foreground">Or continue with</span>
+              </div>
+            </div>
+
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                theme="filled_blue"
+                shape="pill"
+                text="signin_with"
+              />
             </div>
           </form>
 

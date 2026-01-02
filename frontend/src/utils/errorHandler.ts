@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
  * @param defaultMessage - Default message to show if error details are not available
  * @returns The formatted error message string
  */
-export const formatErrorMessage = (error: any, defaultMessage: string = 'An error occurred'): string => {
+export const formatErrorMessage = (error: any, defaultMessage = 'An error occurred'): string => {
   // Check if there are validation errors with field-specific messages
   if (error?.response?.data?.errors && Array.isArray(error.response.data.errors)) {
     const errors = error.response.data.errors;
@@ -49,7 +49,7 @@ export const formatErrorMessage = (error: any, defaultMessage: string = 'An erro
  * @param defaultMessage - Default message to show if error details are not available
  * @returns void
  */
-export const showErrorToast = (error: any, defaultMessage: string = 'An error occurred'): void => {
+export const showErrorToast = (error: any, defaultMessage = 'An error occurred'): void => {
   const message = formatErrorMessage(error, defaultMessage);
   
   // Use toast.error with options for better formatting
